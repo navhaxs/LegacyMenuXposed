@@ -5,7 +5,7 @@ This is an Xposed module for Android devices. It requires the [Xposed Framework]
 
 Enforces the legacy menu ('3 dot menu') to be always visible in the onscreen navigation bar.
 
-The intention of this module is to provide a workaround so that my Samsung S4's stock apps remain usable **without a working hardware menu key**. Very handy if the capacitive back/menu buttons have been damaged (e.g. due to water damage). Of course, alternatively you could just flash a custom ROM like CM which properly supports the onscreen navigation bar in all its in-built apps.
+The intention of this module is to provide a workaround so that my Samsung S4's stock apps remain usable **without a working hardware menu key**. Very handy if the capacitive back/menu buttons have been damaged (e.g. due to water damage). Of course, alternatively you could just flash a custom ROM like CM which properly supports the onscreen navigation bar in all its built-in apps.
 
 I recommend using this in combination with the [Hideable Nav Bar Xposed module](http://repo.xposed.info/module/ztc1997.hideablenavbar), which will ensure that stock apps like the **Samsung dialer** will be able to properly fit onscreen by hiding the navigation bar when needed.
 
