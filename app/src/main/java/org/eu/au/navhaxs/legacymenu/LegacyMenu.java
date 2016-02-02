@@ -32,15 +32,23 @@ public class LegacyMenu implements  IXposedHookLoadPackage, IXposedHookZygoteIni
     }
 
     private void hookAppProcess(XC_LoadPackage.LoadPackageParam packageParam) {
-        XposedHelpers.findAndHookMethod("android.view.ViewConfiguration",
-                packageParam.classLoader, "hasPermanentMenuKey",
-                new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param)
-                            throws Throwable {
-                        param.setResult(Boolean.valueOf(true));
-                    }
-                });
+
+        if (packageParam.packageName.startsWith("com.sec.")
+                || packageParam.packageName.startsWith("com.samsung.")
+                || packageParam.packageName.startsWith("com.android."))
+        {
+
+            XposedHelpers.findAndHookMethod("android.view.ViewConfiguration",
+                    packageParam.classLoader, "hasPermanentMenuKey",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param)
+                                throws Throwable {
+                            param.setResult(Boolean.valueOf(true));
+                        }
+                    });
+
+        };
     }
 
     private static int FLAG_NEEDS_MENU_KEY = getStaticIntField(WindowManager.LayoutParams.class, "FLAG_NEEDS_MENU_KEY");
@@ -58,9 +66,42 @@ public class LegacyMenu implements  IXposedHookLoadPackage, IXposedHookZygoteIni
                             Context context = window.getContext();
                             String packageName = context.getPackageName();
 
-                            window.setFlags(FLAG_NEEDS_MENU_KEY, FLAG_NEEDS_MENU_KEY);
-                            setAdditionalInstanceField(window, PROP_LEGACY_MENU, Boolean.TRUE);
+                            if (packageName.startsWith("com.sec.")
+                                    || packageName.startsWith("com.samsung.")
+                                    || packageName.startsWith("com.android.")) {
 
+                                window.setFlags(FLAG_NEEDS_MENU_KEY, FLAG_NEEDS_MENU_KEY);
+                                setAdditionalInstanceField(window, PROP_LEGACY_MENU, Boolean.TRUE);
+
+
+
+
+
+                                // here
+                                findAndHookMethod(Window.class, "setFlags", int.class, int.class,
+                                        new XC_MethodHook() {
+                                            @Override
+                                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+
+                                                int flags = (Integer) param.args[0];
+                                                int mask = (Integer) param.args[1];
+                                                if ((mask & FLAG_NEEDS_MENU_KEY) != 0) {
+                                                    Boolean menu = (Boolean) getAdditionalInstanceField(param.thisObject, PROP_LEGACY_MENU);
+                                                    if (menu != null) {
+                                                        if (menu.booleanValue()) {
+                                                            flags |= FLAG_NEEDS_MENU_KEY;
+                                                        }
+                                                        param.args[0] = flags;
+                                                    }
+                                                }
+                                            }
+                                        });
+
+
+
+
+
+                            }
                         }
                     });
         } catch (Throwable e) {
@@ -68,24 +109,6 @@ public class LegacyMenu implements  IXposedHookLoadPackage, IXposedHookZygoteIni
         }
 
         try {
-            findAndHookMethod(Window.class, "setFlags", int.class, int.class,
-                    new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-
-                            int flags = (Integer) param.args[0];
-                            int mask = (Integer) param.args[1];
-                            if ((mask & FLAG_NEEDS_MENU_KEY) != 0) {
-                                Boolean menu = (Boolean) getAdditionalInstanceField(param.thisObject, PROP_LEGACY_MENU);
-                                if (menu != null) {
-                                    if (menu.booleanValue()) {
-                                        flags |= FLAG_NEEDS_MENU_KEY;
-                                    }
-                                    param.args[0] = flags;
-                                }
-                            }
-                        }
-                    });
         } catch (Throwable e) {
             XposedBridge.log(e);
         }

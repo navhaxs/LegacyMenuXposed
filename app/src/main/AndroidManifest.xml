@@ -9,7 +9,7 @@
             android:value="true" />
         <meta-data
             android:name="xposeddescription"
-            android:value="Always show the legacy menu ('3 dot menu') in the navigation bar." />
+            android:value="TEST Always show the legacy menu ('3 dot menu') in the navigation bar." />
         <meta-data
             android:name="xposedminversion"
             android:value="30" />
